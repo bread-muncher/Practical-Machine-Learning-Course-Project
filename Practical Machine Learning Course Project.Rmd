@@ -3,8 +3,8 @@ title: "Practical Machine Learning Course Project"
 author: "T K"
 date: "2025-08-06"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -46,13 +46,17 @@ dt <- train(classe ~ ., data = training_subset, method = "rpart", trControl = tr
 dt_prediction <- predict(dt, validation_subset)
 confusionMatrix(validation_subset$classe, dt_prediction)
 postResample(dt_prediction, validation_subset$classe)
+oose_dt <- 1 - postResample(dt_prediction, validation_subset$classe)[1]
+oose_dt
 
 rf <- randomForest(classe ~ ., data=training_subset, control = trainControl(method = "cv", number = 3), na.action = na.exclude)
 rf_prediction <- predict(rf, validation_subset)
 confusionMatrix(validation_subset$classe, rf_prediction)
 postResample(rf_prediction, validation_subset$classe)
+oose_rf <- 1 - postResample(rf_prediction, validation_subset$classe)[1]
+oose_rf
 ```
-Based on the results, the random forest model works better. It has an accuracy rate of 0.9940527 compared to the 0.4875106 of the decision tree model.
+Based on the results, the random forest model works better. It has an accuracy rate of 0.9940527 compared to the 0.4875106 of the decision tree model. The out of sample errors for both models are 0.5124894 and 0.005947324, respectively.
 
 ## Predictions for Test Cases
 Using the random forest method to categorize the test data.

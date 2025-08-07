@@ -448,6 +448,10 @@ confusionMatrix(validation_subset$classe, dt_prediction)</code></pre>
 <pre class="r"><code>postResample(dt_prediction, validation_subset$classe)</code></pre>
 <pre><code>##  Accuracy     Kappa 
 ## 0.4875106 0.3297412</code></pre>
+<pre class="r"><code>oose_dt &lt;- 1 - postResample(dt_prediction, validation_subset$classe)[1]
+oose_dt</code></pre>
+<pre><code>##  Accuracy 
+## 0.5124894</code></pre>
 <pre class="r"><code>rf &lt;- randomForest(classe ~ ., data=training_subset, control = trainControl(method = &quot;cv&quot;, number = 3), na.action = na.exclude)
 rf_prediction &lt;- predict(rf, validation_subset)
 confusionMatrix(validation_subset$classe, rf_prediction)</code></pre>
@@ -486,9 +490,14 @@ confusionMatrix(validation_subset$classe, rf_prediction)</code></pre>
 <pre class="r"><code>postResample(rf_prediction, validation_subset$classe)</code></pre>
 <pre><code>##  Accuracy     Kappa 
 ## 0.9940527 0.9924772</code></pre>
+<pre class="r"><code>oose_rf &lt;- 1 - postResample(rf_prediction, validation_subset$classe)[1]
+oose_rf</code></pre>
+<pre><code>##    Accuracy 
+## 0.005947324</code></pre>
 <p>Based on the results, the random forest model works better. It has an
 accuracy rate of 0.9940527 compared to the 0.4875106 of the decision
-tree model.</p>
+tree model. The out of sample errors for both models are 0.5124894 and
+0.005947324, respectively.</p>
 </div>
 <div id="predictions-for-test-cases" class="section level2">
 <h2>Predictions for Test Cases</h2>
