@@ -1,0 +1,63 @@
+---
+title: "Practical Machine Learning Course Project"
+author: "T K"
+date: "2025-08-06"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Executive Summary
+This project involves the analysis of data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. The objective is to predict the manner in which they did the exercise.
+
+Two models were compared in order to determine the best methodology to predict the classes for the test dataset: the decision tree model and the random forest model. Following testing with the training dataset, it appeared that the random forest model was more accurate. The random forest model was then used to predict the exercise performance of the test dataset.
+
+## Loading Data/Libraries
+Loading relevant data processing libraries and importing test/train data. Additional data filtering of missing values was performed for efficiency. The training data was further split into training and testing datasets.
+```{r}
+set.seed(1)
+library(caret)
+library(randomForest)
+library(rpart)
+
+training <- read.csv("pml-training.csv", na.strings = c("", "NA"))
+testing <- read.csv("pml-testing.csv", na.strings = c("", "NA"))
+training$classe <- as.factor(training$classe)
+
+train_filter <- training[, colSums(is.na(training)) == 0]
+test_filter <- testing[, colSums(is.na(testing)) == 0]
+training_data <- train_filter[, -c(1:7)]
+testing_data <- test_filter[, -c(1:7)]
+
+inTrain <- createDataPartition(training_data$classe, p = 0.7, list = FALSE)
+training_subset <- training_data[inTrain, ]
+validation_subset <- training_data[-inTrain, ]
+
+```
+
+## Selecting Models
+Deciding between the decision tree model or the random forest model by using the partitioned training data.
+```{r}
+dt <- train(classe ~ ., data = training_subset, method = "rpart", trControl = trainControl(method = "cv", number = 3))
+dt_prediction <- predict(dt, validation_subset)
+confusionMatrix(validation_subset$classe, dt_prediction)
+postResample(dt_prediction, validation_subset$classe)
+
+rf <- randomForest(classe ~ ., data=training_subset, control = trainControl(method = "cv", number = 3), na.action = na.exclude)
+rf_prediction <- predict(rf, validation_subset)
+confusionMatrix(validation_subset$classe, rf_prediction)
+postResample(rf_prediction, validation_subset$classe)
+```
+Based on the results, the random forest model works better. It has an accuracy rate of 0.9940527 compared to the 0.4875106 of the decision tree model.
+
+## Predictions for Test Cases
+Using the random forest method to categorize the test data.
+
+```{r}
+predictions <- predict(rf, testing_data)
+predictions
+```
